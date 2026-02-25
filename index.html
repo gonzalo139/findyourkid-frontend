@@ -408,20 +408,20 @@
         msg.innerText = '';
 
         // Paso 1: Obtener coordenadas del GPS del celular
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const mapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+       navigator.geolocation.getCurrentPosition(async (position) => {
+    // Capturamos las coordenadas REALES del sensor del celular
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    
+    // Construimos el link real de Google Maps con esas coordenadas
+    const mapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; ENVIANDO SMS...';
-
-            try {
-                // Paso 2: Enviar ID y link de Maps al Backend
-                const res = await fetch(`${API_URL}/notificar/${ninoId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ maps_url: mapsUrl })
-                });
+    try {
+        const res = await fetch(`${API_URL}/notificar/${ninoId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ maps_url: mapsUrl }) // Enviamos el link real al backend
+        });
                 if (res.ok) {
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> &nbsp; ¡FAMILIA NOTIFICADA!';
                     btn.classList.add('btn-success');
@@ -469,3 +469,4 @@
 </script>
 </body>
 </html>
+
