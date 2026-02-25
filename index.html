@@ -440,8 +440,12 @@
             msg.innerText = '📍 Ubicación denegada. Enviando alerta básica...';
             msg.className = 'msg-error';
             ejecutarEnvioSimple();
-        });
-    }
+     
+    }, {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+});
 
     async function ejecutarEnvioSimple() {
         const btn = document.getElementById('btnAlerta');
@@ -469,4 +473,5 @@
 </script>
 </body>
 </html>
+
 
