@@ -41,8 +41,8 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN: Pega aquí tu URL de Render sin la barra final
-        const API_URL = "https://findyoukid-backend.onrender.com/"; 
+        // CONFIGURACIÓN: Pegar URL del backend (Railway, Render, etc) SIN LA BARRA FINAL
+        const API_URL = "https://findyoukid-backend.onrender.com"; 
         // En el MVP, el ID viene de la URL o lo fijamos para la demo
         const urlParams = new URLSearchParams(window.location.search);
         const ninoId = urlParams.get('id') || "e2747ee0-fa6d-419e-9175-effed30b44be";
@@ -88,4 +88,5 @@
         cargarDatos();
     </script>
 </body>
+
 </html>
