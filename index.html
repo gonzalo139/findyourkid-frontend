@@ -400,23 +400,40 @@
     }
 
     async function enviarAlerta() {
-        const btn = document.getElementById('btnAlerta');
-        const msg = document.getElementById('statusMsg');
+    const btn = document.getElementById('btnAlerta');
+    const msg = document.getElementById('statusMsg');
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-location-dot fa-spin"></i> &nbsp; OBTENIENDO UBICACIÓN...';
-        msg.innerText = '';
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-location-dot fa-spin"></i> &nbsp; OBTENIENDO UBICACIÓN...';
+    msg.innerText = 'Esperando señal GPS...';
 
-        // Paso 1: Obtener coordenadas del GPS del celular
-        navigator.geolocation.getCurrentPosition(async (position) => {
+    const PRECISION_MINIMA = 50; // metros
+    const TIMEOUT_TOTAL = 15000; // 15 segundos máximo esperando
+    let watchId = null;
+
+    const timeout = setTimeout(() => {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        msg.innerText = '📍 GPS impreciso. Enviando alerta básica...';
+        msg.className = 'msg-error';
+        ejecutarEnvioSimple();
+    }, TIMEOUT_TOTAL);
+
+    watchId = navigator.geolocation.watchPosition(async (position) => {
+        const accuracy = position.coords.accuracy;
+        msg.innerText = `📡 Precisión actual: ${Math.round(accuracy)}m... esperando mejor señal`;
+
+        if (accuracy <= PRECISION_MINIMA) {
+            clearTimeout(timeout);
+            navigator.geolocation.clearWatch(watchId);
+
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             const mapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; ENVIANDO SMS...';
+            msg.innerText = '';
 
             try {
-                // Paso 2: Enviar ID y link de Maps al Backend
                 const res = await fetch(`${API_URL}/notificar/${ninoId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -425,7 +442,7 @@
                 if (res.ok) {
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> &nbsp; ¡FAMILIA NOTIFICADA!';
                     btn.classList.add('btn-success');
-                    msg.innerText = '✅ ¡Alerta enviada con ubicación!';
+                    msg.innerText = `✅ ¡Alerta enviada! Precisión: ${Math.round(accuracy)}m`;
                     msg.className = 'msg-ok';
                 }
             } catch (e) {
@@ -434,19 +451,19 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-bell"></i> REINTENTAR';
             }
+        }
 
-        }, (error) => {
-            // Si el usuario deniega el GPS, enviamos la alerta igual pero sin mapa
-            msg.innerText = '📍 Ubicación denegada. Enviando alerta básica...';
-            msg.className = 'msg-error';
-            ejecutarEnvioSimple();
-        }, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-        });
-    }
-
+    }, (error) => {
+        clearTimeout(timeout);
+        msg.innerText = '📍 Ubicación denegada. Enviando alerta básica...';
+        msg.className = 'msg-error';
+        ejecutarEnvioSimple();
+    }, {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    });
+}
     async function ejecutarEnvioSimple() {
         const btn = document.getElementById('btnAlerta');
         const msg = document.getElementById('statusMsg');
@@ -473,3 +490,4 @@
 </script>
 </body>
 </html>
+
