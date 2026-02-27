@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codexia Admin - Gestionar Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen p-4">
+
+    <div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+        <div class="bg-slate-800 p-6 text-white">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-user-shield"></i> Panel de Control Codexia
+            </h1>
+            <p class="text-slate-400 text-sm">Gestiona la seguridad de tu hijo</p>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ID del Dispositivo</label>
+                <input type="text" id="ninoId" value="e2747ee0-fa6d-419e-9175-effed30b44be" 
+                       class="w-full bg-slate-100 border-none rounded-xl p-3 text-sm font-mono focus:ring-2 focus:ring-slate-400">
+            </div>
+
+            <hr class="mb-6 border-slate-100">
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Teléfono de Emergencia</label>
+                    <input type="text" id="inputTel" placeholder="+54911..." 
+                           class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-slate-800 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Condición Médica</label>
+                    <textarea id="inputMedica" rows="3" 
+                              class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-slate-800 transition-colors"></textarea>
+                </div>
+
+                <button onclick="actualizarDatos()" id="btnGuardar" 
+                        class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i> GUARDAR CAMBIOS
+                </button>
+            </div>
+
+            <div id="statusMsg" class="mt-4 text-center text-sm font-medium hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "TU_URL_DE_RENDER"; // Asegúrate que no termine en /
+
+        async function actualizarDatos() {
+            const id = document.getElementById('ninoId').value;
+            const tel = document.getElementById('inputTel').value;
+            const medica = document.getElementById('inputMedica').value;
+            const btn = document.getElementById('btnGuardar');
+            const msg = document.getElementById('statusMsg');
+
+            btn.disabled = true;
+            btn.innerHTML = "Procesando...";
+
+            try {
+                const response = await fetch(`${API_URL}/nino/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telefono_emergencia: tel,
+                        condicion_medica: medica
+                    })
+                });
+
+                if (response.ok) {
+                    msg.innerText = "¡Datos actualizados correctamente!";
+                    msg.className = "mt-4 text-center text-sm font-medium text-green-600";
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                msg.innerText = "Error al actualizar. Verifica el ID y la conexión.";
+                msg.className = "mt-4 text-center text-sm font-medium text-red-600";
+            } finally {
+                msg.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> GUARDAR CAMBIOS';
+            }
+        }
+    </script>
+</body>
+</html>
