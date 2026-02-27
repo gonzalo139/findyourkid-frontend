@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Padres - Codexia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="p-8 text-center bg-slate-800 text-white">
+            <h1 class="text-3xl font-black tracking-tighter italic">CODEXIA</h1>
+            <p id="auth-title" class="text-slate-400 mt-2">Bienvenido al panel de seguridad</p>
+        </div>
+
+        <div class="p-8">
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email</label>
+                    <input type="email" id="email" required class="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-slate-800 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Contraseña</label>
+                    <input type="password" id="password" required class="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-slate-800 outline-none">
+                </div>
+
+                <button type="submit" id="btn-auth" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all">
+                    INGRESAR
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <button onclick="toggleAuth()" id="toggle-link" class="text-sm text-slate-500 hover:underline">
+                    ¿No tienes cuenta? Regístrate aquí
+                </button>
+            </div>
+            
+            <div id="msg" class="mt-4 text-center text-sm font-bold hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE SUPABASE
+        const SUPABASE_URL = "TU_URL_DE_SUPABASE";
+        const SUPABASE_KEY = "TU_PUBLISHABLE_KEY"; // Usa la 'anon public' de la imagen que pasaste
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let isLogin = true;
+
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? "Bienvenido al panel de seguridad" : "Crea tu cuenta de protector";
+            document.getElementById('btn-auth').innerText = isLogin ? "INGRESAR" : "CREAR CUENTA";
+            document.getElementById('toggle-link').innerText = isLogin ? "¿No tienes cuenta? Regístrate aquí" : "¿Ya tienes cuenta? Ingresa aquí";
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('msg');
+            const btn = document.getElementById('btn-auth');
+
+            btn.disabled = true;
+            msg.classList.remove('hidden');
+            msg.innerText = "Procesando...";
+
+            let result;
+            if (isLogin) {
+                result = await supabase.auth.signInWithPassword({ email, password });
+            } else {
+                result = await supabase.auth.signUp({ email, password });
+            }
+
+            if (result.error) {
+                msg.innerText = "Error: " + result.error.message;
+                msg.className = "mt-4 text-center text-sm font-bold text-red-600";
+                btn.disabled = false;
+            } else {
+                msg.innerText = isLogin ? "¡Acceso concedido!" : "¡Registro exitoso! Revisa tu email.";
+                msg.className = "mt-4 text-center text-sm font-bold text-green-600";
+                if (isLogin) {
+                    // Guardamos el token y vamos al admin
+                    setTimeout(() => window.location.href = "admin.html", 1500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
