@@ -321,6 +321,27 @@
             letter-spacing: 2px;
         }
         .footer-brand i { color: var(--red); font-size: 0.75rem; }
+
+        .login-link {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #bbb;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            padding: 6px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .login-link:hover {
+            color: #888;
+            border-color: #ccc;
+            background: #f9f9f9;
+        }
+        .login-link i { font-size: 0.65rem; }
     </style>
 </head>
 <body>
@@ -376,15 +397,17 @@
                 <span>Protegido por</span>
                 <strong>FINDYOURKID</strong>
             </div>
+
+            <div class="mt-5 text-center">
+                <a href="/admin.html" class="login-link">
+                    <i class="fas fa-lock"></i> Acceso para Padres
+                </a>
+            </div>
         </div>
 
     </div>
 </div>
-<footer class="mt-8 pb-4 text-center">
-    <a href="/admin.html" class="text-xs text-gray-400 hover:text-gray-600 underline">
-        Acceso para Padres / Administrar Perfil
-    </a>
-</footer>
+
 <script>
     const API_URL = "https://findyoukid-backend.onrender.com";
     const urlParams = new URLSearchParams(window.location.search);
@@ -404,40 +427,23 @@
     }
 
     async function enviarAlerta() {
-    const btn = document.getElementById('btnAlerta');
-    const msg = document.getElementById('statusMsg');
+        const btn = document.getElementById('btnAlerta');
+        const msg = document.getElementById('statusMsg');
 
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-location-dot fa-spin"></i> &nbsp; OBTENIENDO UBICACIÓN...';
-    msg.innerText = 'Esperando señal GPS...';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-location-dot fa-spin"></i> &nbsp; OBTENIENDO UBICACIÓN...';
+        msg.innerText = '';
 
-    const PRECISION_MINIMA = 50; // metros
-    const TIMEOUT_TOTAL = 15000; // 15 segundos máximo esperando
-    let watchId = null;
-
-    const timeout = setTimeout(() => {
-        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-        msg.innerText = '📍 GPS impreciso. Enviando alerta básica...';
-        msg.className = 'msg-error';
-        ejecutarEnvioSimple();
-    }, TIMEOUT_TOTAL);
-
-    watchId = navigator.geolocation.watchPosition(async (position) => {
-        const accuracy = position.coords.accuracy;
-        msg.innerText = `📡 Precisión actual: ${Math.round(accuracy)}m... esperando mejor señal`;
-
-        if (accuracy <= PRECISION_MINIMA) {
-            clearTimeout(timeout);
-            navigator.geolocation.clearWatch(watchId);
-
+        // Paso 1: Obtener coordenadas del GPS del celular
+        navigator.geolocation.getCurrentPosition(async (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             const mapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; ENVIANDO SMS...';
-            msg.innerText = '';
 
             try {
+                // Paso 2: Enviar ID y link de Maps al Backend
                 const res = await fetch(`${API_URL}/notificar/${ninoId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -446,7 +452,7 @@
                 if (res.ok) {
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> &nbsp; ¡FAMILIA NOTIFICADA!';
                     btn.classList.add('btn-success');
-                    msg.innerText = `✅ ¡Alerta enviada! Precisión: ${Math.round(accuracy)}m`;
+                    msg.innerText = '✅ ¡Alerta enviada con ubicación!';
                     msg.className = 'msg-ok';
                 }
             } catch (e) {
@@ -455,19 +461,19 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-bell"></i> REINTENTAR';
             }
-        }
 
-    }, (error) => {
-        clearTimeout(timeout);
-        msg.innerText = '📍 Ubicación denegada. Enviando alerta básica...';
-        msg.className = 'msg-error';
-        ejecutarEnvioSimple();
-    }, {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-    });
-}
+        }, (error) => {
+            // Si el usuario deniega el GPS, enviamos la alerta igual pero sin mapa
+            msg.innerText = '📍 Ubicación denegada. Enviando alerta básica...';
+            msg.className = 'msg-error';
+            ejecutarEnvioSimple();
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        });
+    }
+
     async function ejecutarEnvioSimple() {
         const btn = document.getElementById('btnAlerta');
         const msg = document.getElementById('statusMsg');
@@ -494,5 +500,3 @@
 </script>
 </body>
 </html>
-
-
