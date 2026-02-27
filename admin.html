@@ -3,90 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codexia Admin - Gestionar Perfil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>FindYourKid — Panel de Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy: #0F1B2D;
+            --navy-mid: #1A2E4A;
+            --navy-light: #243B55;
+            --accent: #4F9EF8;
+            --accent-dark: #2D7DD2;
+            --white: #FFFFFF;
+            --muted: #7A92AA;
+            --border: rgba(255,255,255,0.08);
+            --input-bg: rgba(255,255,255,0.05);
+            --success: #2ECC71;
+            --error: #FF4444;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--navy);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,158,248,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,158,248,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* Glow orb */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79,158,248,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            background: var(--navy-mid);
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(79,158,248,0.1),
+                0 40px 80px rgba(0,0,0,0.5);
+            animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes cardIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            background: var(--navy-light);
+            padding: 28px 28px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(79,158,248,0.3);
+        }
+        .header-text h1 {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.25rem;
+            color: var(--white);
+            letter-spacing: 1px;
+        }
+        .header-text p {
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-weight: 700;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Badge */
+        .badge {
+            margin-left: auto;
+            background: rgba(79,158,248,0.15);
+            color: var(--accent);
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(79,158,248,0.25);
+        }
+
+        /* Body */
+        .body {
+            padding: 28px;
+        }
+
+        /* Field group */
+        .field {
+            margin-bottom: 20px;
+        }
+        .field label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .field label i {
+            margin-right: 5px;
+            font-size: 0.65rem;
+        }
+
+        .field input,
+        .field textarea {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: var(--white);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            resize: none;
+        }
+        .field input::placeholder,
+        .field textarea::placeholder {
+            color: rgba(122,146,170,0.5);
+            font-weight: 600;
+        }
+        .field input:focus,
+        .field textarea:focus {
+            border-color: rgba(79,158,248,0.5);
+            box-shadow: 0 0 0 3px rgba(79,158,248,0.1);
+            background: rgba(255,255,255,0.07);
+        }
+
+        /* ID field special style */
+        .field input.mono {
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 24px 0;
+        }
+
+        /* Button */
+        .btn-save {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px 24px;
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(79,158,248,0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-save:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(79,158,248,0.4);
+        }
+        .btn-save:active:not(:disabled) { transform: scale(0.98); }
+        .btn-save:disabled { opacity: 0.6; cursor: default; }
+
+        /* Status */
+        #statusMsg {
+            margin-top: 16px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.88rem;
+            min-height: 20px;
+            letter-spacing: 0.3px;
+        }
+        .msg-ok { color: var(--success); }
+        .msg-error { color: var(--error); }
+
+        /* Back link */
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 24px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--accent); }
+        .back-link i { font-size: 0.7rem; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-4">
+<body>
 
-    <div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-        <div class="bg-slate-800 p-6 text-white">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="fas fa-user-shield"></i> Panel de Control Codexia
-            </h1>
-            <p class="text-slate-400 text-sm">Gestiona la seguridad de tu hijo</p>
+<div class="card">
+    <div class="header">
+        <div class="header-icon">
+            <i class="fas fa-user-shield"></i>
         </div>
-
-        <div class="p-6">
-            <div class="mb-6">
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ID del Dispositivo</label>
-                <input type="text" id="ninoId" value="e2747ee0-fa6d-419e-9175-effed30b44be" 
-                       class="w-full bg-slate-100 border-none rounded-xl p-3 text-sm font-mono focus:ring-2 focus:ring-slate-400">
-            </div>
-
-            <hr class="mb-6 border-slate-100">
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Teléfono de Emergencia</label>
-                    <input type="text" id="inputTel" placeholder="+54911..." 
-                           class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-slate-800 transition-colors">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Condición Médica</label>
-                    <textarea id="inputMedica" rows="3" 
-                              class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-slate-800 transition-colors"></textarea>
-                </div>
-
-                <button onclick="actualizarDatos()" id="btnGuardar" 
-                        class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-save"></i> GUARDAR CAMBIOS
-                </button>
-            </div>
-
-            <div id="statusMsg" class="mt-4 text-center text-sm font-medium hidden"></div>
+        <div class="header-text">
+            <h1>PANEL DE CONTROL</h1>
+            <p>Gestiona la seguridad de tu hijo</p>
         </div>
+        <div class="badge">Admin</div>
     </div>
 
-    <script>
-        const API_URL = "https://findyoukid-backend.onrender.com"; // Asegúrate que no termine en /
+    <div class="body">
 
-        async function actualizarDatos() {
-            const id = document.getElementById('ninoId').value;
-            const tel = document.getElementById('inputTel').value;
-            const medica = document.getElementById('inputMedica').value;
-            const btn = document.getElementById('btnGuardar');
-            const msg = document.getElementById('statusMsg');
+        <div class="field">
+            <label><i class="fas fa-fingerprint"></i> ID del Dispositivo</label>
+            <input type="text" id="ninoId" class="mono"
+                   value="e2747ee0-fa6d-419e-9175-effed30b44be">
+        </div>
 
-            btn.disabled = true;
-            btn.innerHTML = "Procesando...";
+        <div class="divider"></div>
 
-            try {
-                const response = await fetch(`${API_URL}/nino/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telefono_emergencia: tel,
-                        condicion_medica: medica
-                    })
-                });
+        <div class="field">
+            <label><i class="fas fa-phone"></i> Teléfono de Emergencia</label>
+            <input type="text" id="inputTel" placeholder="+54 9 11 0000-0000">
+        </div>
 
-                if (response.ok) {
-                    msg.innerText = "¡Datos actualizados correctamente!";
-                    msg.className = "mt-4 text-center text-sm font-medium text-green-600";
-                } else {
-                    throw new Error();
-                }
-            } catch (e) {
-                msg.innerText = "Error al actualizar. Verifica el ID y la conexión.";
-                msg.className = "mt-4 text-center text-sm font-medium text-red-600";
-            } finally {
-                msg.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save"></i> GUARDAR CAMBIOS';
+        <div class="field">
+            <label><i class="fas fa-heart-pulse"></i> Condición Médica</label>
+            <textarea id="inputMedica" rows="3" placeholder="Ej: Alérgico a la penicilina..."></textarea>
+        </div>
+
+        <button class="btn-save" onclick="actualizarDatos()" id="btnGuardar">
+            <i class="fas fa-floppy-disk"></i>
+            GUARDAR CAMBIOS
+        </button>
+
+        <p id="statusMsg"></p>
+
+        <a href="/index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Volver a la pantalla de emergencia
+        </a>
+    </div>
+</div>
+
+<script>
+    const API_URL = "https://findyoukid-backend.onrender.com";
+
+    async function actualizarDatos() {
+        const id = document.getElementById('ninoId').value;
+        const tel = document.getElementById('inputTel').value;
+        const medica = document.getElementById('inputMedica').value;
+        const btn = document.getElementById('btnGuardar');
+        const msg = document.getElementById('statusMsg');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; PROCESANDO...';
+
+        try {
+            const response = await fetch(`${API_URL}/nino/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telefono_emergencia: tel,
+                    condicion_medica: medica
+                })
+            });
+
+            if (response.ok) {
+                msg.innerText = '✅ ¡Datos actualizados correctamente!';
+                msg.className = 'msg-ok';
+            } else {
+                throw new Error();
             }
+        } catch (e) {
+            msg.innerText = '❌ Error al actualizar. Verificá el ID y la conexión.';
+            msg.className = 'msg-error';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-floppy-disk"></i> GUARDAR CAMBIOS';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
