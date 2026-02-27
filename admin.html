@@ -299,6 +299,23 @@
 
 <script>
     const API_URL = "https://findyoukid-backend.onrender.com";
+    // CONFIGURACIÓN DE SUPABASE (Asegurate de que sea la misma que en acceso.html)
+const SUPABASE_URL = "TU_URL_DE_SUPABASE";
+const SUPABASE_KEY = "TU_PUBLISHABLE_KEY";
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// GUARDIA DE SEGURIDAD: Verificar sesión al cargar la página
+async function checkUser() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    
+    if (!session) {
+        // Si no hay sesión, redirigir al login
+        window.location.href = "acceso.html";
+    }
+}
+
+// Ejecutar la comprobación inmediatamente
+checkUser();
 
     async function actualizarDatos() {
         const id = document.getElementById('ninoId').value;
