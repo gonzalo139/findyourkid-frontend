@@ -7,28 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script>
-
-            const API_URL = "https://findyoukid-backend.onrender.com";
-    // CONFIGURACIÓN DE SUPABASE (Asegurate de que sea la misma que en acceso.html)
-const SUPABASE_URL = "https://rjaacuwxoigrrbkonaxh.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ZM-DArvmuNJxD3-04H6DsA_V08HNAqL";
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        (async function() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                // Si no hay sesión, rebota al login de inmediato
-                window.location.href = "acceso.html";
-            } else {
-                // Si hay sesión, esperamos a que el DOM cargue para mostrar el contenido
-                window.addEventListener('DOMContentLoaded', () => {
-                    document.getElementById('admin-content').classList.remove('hidden');
-                });
-            }
-        })();
-    </script>
-
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -320,6 +298,8 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 </div>
 
 <script>
+    const API_URL = "https://findyoukid-backend.onrender.com";
+
     async function actualizarDatos() {
         const id = document.getElementById('ninoId').value;
         const tel = document.getElementById('inputTel').value;
