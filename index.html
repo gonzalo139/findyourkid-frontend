@@ -475,31 +475,36 @@
     }
 
     async function ejecutarEnvioSimple() {
-        const btn = document.getElementById('btnAlerta');
-        const msg = document.getElementById('statusMsg');
+    const btn = document.getElementById('btnAlerta');
+    const msg = document.getElementById('statusMsg');
 
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; ENVIANDO SMS...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; ENVIANDO SMS...';
 
-        try {
-            const res = await fetch(`${API_URL}/notificar/${ninoId}`, { method: 'POST' });
-            if (res.ok) {
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> &nbsp; ¡FAMILIA NOTIFICADA!';
-                btn.classList.add('btn-success');
-                msg.innerText = '✅ Alerta enviada (sin ubicación). ¡Gracias!';
-                msg.className = 'msg-ok';
-            }
-        } catch (e) {
-            msg.innerText = '❌ Error al enviar. Intente de nuevo.';
-            msg.className = 'msg-error';
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-bell"></i> REINTENTAR';
+    try {
+        const res = await fetch(`${API_URL}/notificar/${ninoId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ maps_url: 'Ubicación no disponible' })
+        });
+        if (res.ok) {
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> &nbsp; ¡FAMILIA NOTIFICADA!';
+            btn.classList.add('btn-success');
+            msg.innerText = '✅ Alerta enviada (sin ubicación). ¡Gracias!';
+            msg.className = 'msg-ok';
         }
+    } catch (e) {
+        msg.innerText = '❌ Error al enviar. Intente de nuevo.';
+        msg.className = 'msg-error';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-bell"></i> REINTENTAR';
     }
+}
 
     cargarDatos();
 </script>
 </body>
 </html>
+
 
 
 
