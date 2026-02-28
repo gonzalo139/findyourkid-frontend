@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+.hidden { display: none; }
         :root {
             --navy: #0F1B2D;
             --navy-mid: #1A2E4A;
@@ -251,6 +251,7 @@
     </style>
 </head>
 <body>
+<div id="admin-content" class="hidden">
 
 <div class="card">
     <div class="header">
@@ -293,9 +294,11 @@
 
         <a href="/index.html" class="back-link">
             <i class="fas fa-arrow-left"></i> Volver a la pantalla de emergencia
-        </a>
-    </div>
+            </a>
+        </div>
+   </div>
 </div>
+    
 
 <script>
     const API_URL = "https://findyoukid-backend.onrender.com";
