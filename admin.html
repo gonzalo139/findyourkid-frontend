@@ -321,19 +321,38 @@
 </div>
 
 <script>
-   async function actualizarDatos() {
-    const idNino = document.getElementById('ninoId').value;
-    
-    // OBTENER EL USER_ID DE LA SESIÓN ACTUAL
+  async function actualizarDatos() {
+    // 1. Intentamos obtener el ID del niño de un input o de la URL
+    const elId = document.getElementById('ninoId');
+    const urlParams = new URLSearchParams(window.location.search);
+    const idNino = elId ? elId.value : urlParams.get('id');
+
+    if (!idNino) {
+        alert("Error: No se encontró el ID del niño. Asegurate de que el campo 'ninoId' existe o está en la URL.");
+        return;
+    }
+
+    // 2. Verificamos la sesión de Supabase
     const { data: { session } } = await _supabase.auth.getSession();
-    const userId = session.user.id; 
+    if (!session) {
+        alert("Error: No hay sesión activa. Por favor, logueate de nuevo.");
+        window.location.href = "acceso.html";
+        return;
+    }
+
+    // 3. Capturamos los campos con precaución (si no existen, enviamos vacío)
+    const tel = document.getElementById('inputTel')?.value || "";
+    const alergias = document.getElementById('inputAlergias')?.value || "";
+    const calma = document.getElementById('inputCalma')?.value || "";
 
     const payload = {
-        user_id: userId, // ENVIAMOS EL DUEÑO
-        telefono_emergencia: document.getElementById('inputTel').value,
-        alergias: document.getElementById('inputAlergias').value,
-        protocolo_calma: document.getElementById('inputCalma').value
+        user_id: session.user.id,
+        telefono_emergencia: tel,
+        alergias: alergias,
+        protocolo_calma: calma
     };
+
+    console.log("Enviando datos:", payload); // Para que veas en consola qué viaja
 
     try {
         const response = await fetch(`${API_URL}/nino/${idNino}`, {
@@ -342,16 +361,14 @@
             body: JSON.stringify(payload)
         });
 
-        const result = await response.json();
-
         if (response.ok) {
-            alert("¡Guardado! Ahora eres el dueño oficial de esta pulsera.");
+            alert("¡Datos guardados con éxito!");
         } else {
-            // Aquí capturamos el "Acceso Denegado"
-            alert("ERROR: " + (result.detail || "No puedes editar esta pulsera"));
+            const err = await response.json();
+            alert("Error del servidor: " + (err.detail || "No autorizado"));
         }
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error en el fetch:", error);
         alert("Error de conexión con el servidor.");
     }
 }
