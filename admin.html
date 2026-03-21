@@ -322,39 +322,39 @@
 
 <script>
     async function actualizarDatos() {
-        const id = document.getElementById('ninoId').value;
-        const tel = document.getElementById('inputTel').value;
-        const medica = document.getElementById('inputMedica').value;
-        const btn = document.getElementById('btnGuardar');
-        const msg = document.getElementById('statusMsg');
+    const idNino = document.getElementById('ninoId').value;
+    
+    // OBTENER EL USER_ID DE LA SESIÓN ACTUAL
+    const { data: { session } } = await _supabase.auth.getSession();
+    const userId = session.user.id; 
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp; PROCESANDO...';
+    const payload = {
+        user_id: userId, // ENVIAMOS EL DUEÑO
+        telefono_emergencia: document.getElementById('inputTel').value,
+        alergias: document.getElementById('inputAlergias').value,
+        protocolo_calma: document.getElementById('inputCalma').value
+    };
 
-        try {
-            const response = await fetch(`${API_URL}/nino/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telefono_emergencia: tel,
-                    condicion_medica: medica
-                })
-            });
+    try {
+        const response = await fetch(`${API_URL}/nino/${idNino}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-            if (response.ok) {
-                msg.innerText = '✅ ¡Datos actualizados correctamente!';
-                msg.className = 'msg-ok';
-            } else {
-                throw new Error();
-            }
-        } catch (e) {
-            msg.innerText = '❌ Error al actualizar. Verificá el ID y la conexión.';
-            msg.className = 'msg-error';
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-floppy-disk"></i> GUARDAR CAMBIOS';
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("¡Guardado! Ahora eres el dueño oficial de esta pulsera.");
+        } else {
+            // Aquí capturamos el "Acceso Denegado"
+            alert("ERROR: " + (result.detail || "No puedes editar esta pulsera"));
         }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Error de conexión con el servidor.");
     }
+}
 </script>
 </body>
 </html>
